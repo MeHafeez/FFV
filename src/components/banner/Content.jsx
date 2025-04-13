@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { initializePWAPrompt, isPWAInstallable, installPWA } from "../../utils/pwaInstall";
+import VegatiableImage from "../../public/vegetables.png";
 
 const Content = () => {
   const history = useHistory();
@@ -73,7 +74,7 @@ const Content = () => {
 
         <div className="flex-1 flex justify-center hidden md:block">
           <img
-            src="https://source.unsplash.com/random/800x600/?vegetables"
+            src={VegatiableImage}
             alt="Fresh Vegetables"
             className="max-w-full h-auto animate-fade-in"
             style={{ maxHeight: "500px" }}

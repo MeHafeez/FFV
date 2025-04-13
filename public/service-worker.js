@@ -1,74 +1,58 @@
-const CACHE_NAME = 'ffv-cache-v1';
+const CACHE_NAME = 'ffv-cache-v2'; // Increment cache version
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(async cache => {
-                // Essential static files
-                const staticFiles = [
-                    '/',
-                    '/manifest.json',
-                    '/logo192.png',
-                    '/logo512.png',
-                    '/favicon.ico'
-                ];
-
-                // Try to cache each file individually
-                for (const file of staticFiles) {
-                    try {
-                        const response = await fetch(file, { 
-                            credentials: 'same-origin',
-                            headers: {
-                                'Cache-Control': 'no-cache'
-                            }
-                        });
-                        if (response.ok) {
-                            await cache.put(file, response);
-                            console.log('Successfully cached:', file);
-                        } else {
-                            console.warn('Failed to fetch:', file, response.status);
-                        }
-                    } catch (error) {
-                        console.error('Cache error for:', file, error);
-                    }
-                }
+        Promise.all([
+            caches.open(CACHE_NAME).then(cache => {
+                // Only cache the homepage and manifest initially
+                return cache.add(new Request('/', { 
+                    credentials: 'same-origin',
+                    mode: 'no-cors'
+                })).catch(err => console.log('Home page cache failed:', err));
+            }),
+            caches.open(CACHE_NAME).then(cache => {
+                return cache.add(new Request('/manifest.json', { 
+                    credentials: 'same-origin',
+                    mode: 'no-cors'
+                })).catch(err => console.log('Manifest cache failed:', err));
             })
+        ]).catch(error => {
+            console.log('Initial caching failed:', error);
+            // Continue with installation even if caching fails
+        })
     );
 });
 
 self.addEventListener('fetch', event => {
     event.respondWith(
-        caches.match(event.request)
-            .then(cached => {
-                return cached || fetch(event.request)
-                    .then(response => {
-                        // Cache successful responses for future
-                        if (response.ok) {
-                            const responseToCache = response.clone();
-                            caches.open(CACHE_NAME)
-                                .then(cache => cache.put(event.request, responseToCache));
-                        }
-                        return response;
-                    });
+        fetch(event.request)
+            .then(response => {
+                // Cache successful responses
+                if (response.ok) {
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME)
+                        .then(cache => {
+                            cache.put(event.request, responseToCache);
+                        });
+                }
+                return response;
             })
             .catch(() => {
-                // Return cached homepage as fallback
-                return caches.match('/');
+                return caches.match(event.request);
             })
     );
 });
 
 self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys()
-            .then(cacheNames => {
-                return Promise.all(
-                    cacheNames.map(cacheName => {
-                        if (cacheName !== CACHE_NAME) {
-                            return caches.delete(cacheName);
-                        }
-                    })
-                );
-            })
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
     );
 });

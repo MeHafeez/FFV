@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from 'react-router-dom';
-import "../../App.css";
-import vegetablesImage from "../../public/vegetables.png";
-import { initializePWAPrompt } from '../../utils/pwaInstall';
+import { useHistory } from "react-router-dom";
+import { initializePWAPrompt, isPWAInstallable, installPWA } from "../../utils/pwaInstall";
 
 const Content = () => {
   const history = useHistory();
+  const [showInstallButton, setShowInstallButton] = useState(false);
+
+  useEffect(() => {
+    initializePWAPrompt();
+    const checkInstallable = () => {
+      setShowInstallButton(isPWAInstallable());
+    };
+    checkInstallable();
+    window.addEventListener('beforeinstallprompt', checkInstallable);
+    return () => window.removeEventListener('beforeinstallprompt', checkInstallable);
+  }, []);
+
+  const handleInstall = async () => {
+    const installed = await installPWA();
+    if (installed) {
+      setShowInstallButton(false);
+    }
+  };
   const [isH1Animated, setIsH1Animated] = useState(false);
 
   useEffect(() => {
@@ -37,9 +53,9 @@ const Content = () => {
                 A1 quality produce at fair prices.
               </p>
               <button
-               className="text-lg sm:text-xl border rounded-full px-10 py-4 explore-btn animate-pulse mx-auto md:mx-0"
-               onClick={() => history.push('/shop')}
-               >
+                className="text-lg sm:text-xl border rounded-full px-10 py-4 explore-btn animate-pulse mx-auto md:mx-0"
+                onClick={() => history.push('/shop')}
+              >
                 Explore Fresh Produce
               </button>
               {/* Add test button for mobile */}
@@ -57,7 +73,7 @@ const Content = () => {
 
         <div className="flex-1 flex justify-center hidden md:block">
           <img
-            src={vegetablesImage}
+            src="https://source.unsplash.com/random/800x600/?vegetables"
             alt="Fresh Vegetables"
             className="max-w-full h-auto animate-fade-in"
             style={{ maxHeight: "500px" }}

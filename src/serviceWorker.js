@@ -3,19 +3,18 @@
 
 export function register(config) {
   if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
-    const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
+    // Using the actual production URL instead of PUBLIC_URL
+    const publicUrl = new URL('https://freshveggies.vercel.app');
     if (publicUrl.origin !== window.location.origin) {
       return;
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
+      const swUrl = `/service-worker.js`;
 
       if (isLocalhost) {
-        // This is running on localhost
         checkValidServiceWorker(swUrl, config);
       } else {
-        // Is not localhost
         registerValidSW(swUrl, config);
       }
     });
@@ -26,6 +25,9 @@ function registerValidSW(swUrl, config) {
   navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
+      // Check for updates on every page load
+      registration.update();
+
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (installingWorker == null) {
@@ -34,10 +36,15 @@ function registerValidSW(swUrl, config) {
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
+              // New content is available; please refresh
+              console.log('New content is available; please refresh');
               if (config && config.onUpdate) {
                 config.onUpdate(registration);
               }
+              // Force reload the page
+              window.location.reload();
             } else {
+              console.log('Content is cached for offline use.');
               if (config && config.onSuccess) {
                 config.onSuccess(registration);
               }

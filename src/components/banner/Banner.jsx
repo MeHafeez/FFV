@@ -27,14 +27,4 @@ const VideoBanner = () => {
 };
 
 export default VideoBanner;
-{
-  /* <video
-                className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto transform -translate-x-1/2 -translate-y-1/2 object-cover"
-                autoPlay
-                loop
-                muted
-                playsInline
-            >
-                <source src="https://cdn.pixabay.com/video/2017/01/26/7529-201118756_tiny.mp4" type="video/mp4" />
-            </video> */
-}
+

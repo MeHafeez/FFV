@@ -1,26 +1,35 @@
 let deferredPrompt;
 
 export const initializePWAPrompt = () => {
-    // Debug log to check if initialization is called
-    console.log('PWA Prompt initialization started');
-
-    // Check if the browser supports PWA installation
-    if ('serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window) {
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            console.log('Install prompt captured');
-            
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                console.log('Mobile device detected, showing prompt');
-                showInstallPrompt();
-            } else {
-                console.log('Not a mobile device, prompt not shown');
-            }
-        });
-    } else {
-        console.log('PWA installation not supported in this browser');
+    // Force check for mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (!isMobile) {
+        console.log('Not a mobile device, skipping PWA prompt');
+        return;
     }
+
+    // Immediate check for standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        console.log('App already installed');
+        return;
+    }
+
+    // Show prompt after a short delay
+    setTimeout(() => {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallPrompt();
+            });
+
+            // Force show prompt for testing
+            if (!deferredPrompt) {
+                showInstallPrompt();
+            }
+        }
+    }, 2000);
 
     // Add installed event listener
     window.addEventListener('appinstalled', (evt) => {

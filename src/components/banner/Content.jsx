@@ -43,12 +43,12 @@ const Content = () => {
         </div>
 
         <div className="flex-1 flex justify-center hidden md:block">
-          <img
+          {/* <img
             src={vegetablesImage}
             alt="Fresh Vegetables"
             className="max-w-full h-auto animate-fade-in"
             style={{ maxHeight: "500px" }}
-          />
+          /> */}
         </div>
       </div>
     </div>

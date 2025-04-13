@@ -4,27 +4,23 @@ self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                // Start with minimal cache and add more as needed
-                return cache.addAll([
-                    '/',
-                    '/index.html',
-                    '/manifest.json',
-                    '/logo512.png'
-                ]).catch(error => {
-                    console.error('Cache addAll error:', error);
-                });
+                // Cache essential files only
+                return cache.add('/')
+                    .then(() => cache.add('/index.html'))
+                    .then(() => cache.add('/manifest.json'))
+                    .catch(error => {
+                        console.error('Cache add error:', error);
+                        // Continue installation even if caching fails
+                        return Promise.resolve();
+                    });
             })
     );
 });
 
 self.addEventListener('fetch', event => {
     event.respondWith(
-        caches.match(event.request)
-            .then(response => response || fetch(event.request))
-            .catch(() => {
-                // Return offline fallback or continue with fetch
-                return fetch(event.request);
-            })
+        fetch(event.request)
+            .catch(() => caches.match(event.request))
     );
 });
 
@@ -32,9 +28,9 @@ self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
-                cacheNames.map(cache => {
-                    if (cache !== CACHE_NAME) {
-                        return caches.delete(cache);
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
                     }
                 })
             );

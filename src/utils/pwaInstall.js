@@ -1,30 +1,30 @@
 let deferredPrompt;
 
 // Add visual logging function
-const showLog = (message) => {
-    const logDiv = document.getElementById('pwa-logs') || document.createElement('div');
-    logDiv.id = 'pwa-logs';
-    logDiv.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        background: rgba(0,0,0,0.8);
-        color: white;
-        padding: 10px;
-        font-size: 12px;
-        max-height: 150px;
-        overflow-y: auto;
-        width: 100%;
-        z-index: 10000;
-    `;
-    const log = document.createElement('div');
-    log.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
-    logDiv.appendChild(log);
-    if (!document.getElementById('pwa-logs')) {
-        document.body.appendChild(logDiv);
-    }
-    console.log(message); // Also log to console
-};
+// const showLog = (message) => {
+//     const logDiv = document.getElementById('pwa-logs') || document.createElement('div');
+//     logDiv.id = 'pwa-logs';
+//     logDiv.style.cssText = `
+//         position: fixed;
+//         top: 0;
+//         left: 0;
+//         background: rgba(0,0,0,0.8);
+//         color: white;
+//         padding: 10px;
+//         font-size: 12px;
+//         max-height: 150px;
+//         overflow-y: auto;
+//         width: 100%;
+//         z-index: 10000;
+//     `;
+//     const log = document.createElement('div');
+//     log.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+//     logDiv.appendChild(log);
+//     if (!document.getElementById('pwa-logs')) {
+//         document.body.appendChild(logDiv);
+//     }
+//     console.log(message); // Also log to console
+// };
 
 export const initializePWAPrompt = () => {
     showLog('PWA Initialization started');
@@ -215,7 +215,7 @@ const sendLogToServer = async (type, message) => {
     }
 };
 
-// Update the existing showLog function
+// Remove the first showLog definition and keep only this enhanced version
 const showLog = (message, type = 'info') => {
     const logDiv = document.getElementById('pwa-logs') || document.createElement('div');
     logDiv.id = 'pwa-logs';

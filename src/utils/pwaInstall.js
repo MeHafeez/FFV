@@ -29,42 +29,40 @@ const showLog = (message) => {
 export const initializePWAPrompt = () => {
     showLog('PWA Initialization started');
     
+    // Force register service worker first
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+                showLog('Service Worker registered successfully');
+            })
+            .catch(error => {
+                showLog('Service Worker registration failed: ' + error);
+            });
+    }
+
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     showLog(`Device is mobile: ${isMobile}`);
     
-    if (!isMobile) {
-        showLog('Not a mobile device, skipping PWA prompt');
-        return;
+    // Always show prompt on mobile, regardless of other conditions
+    if (isMobile) {
+        // Show prompt immediately and after a delay
+        showInstallPrompt();
+        
+        // Also listen for the install prompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showLog('Install prompt event captured');
+            showInstallPrompt();
+        });
     }
 
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-        showLog('App already installed');
-        return;
-    }
-
-    showLog('Checking service worker support...');
-    setTimeout(() => {
-        if ('serviceWorker' in navigator) {
-            showLog('Service Worker supported');
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                showLog('Install prompt event captured');
-                showInstallPrompt();
-            });
-
-            if (!deferredPrompt) {
-                showLog('No deferred prompt, showing manual prompt');
-                showInstallPrompt();
-            }
-        } else {
-            showLog('Service Worker not supported');
-        }
-    }, 2000);
-
-    window.addEventListener('appinstalled', (evt) => {
-        showLog('PWA installed successfully');
-    });
+    // Add more detailed logging to install button click
+    const originalShowInstallPrompt = showInstallPrompt;
+    showInstallPrompt = () => {
+        showLog('Showing install prompt UI');
+        originalShowInstallPrompt();
+    };
 };
 
 const showInstallPrompt = () => {
@@ -190,4 +188,58 @@ const showInstallPrompt = () => {
             console.error('Installation process error:', error);
         }
     });
+};
+
+const sendLogToServer = async (type, message) => {
+    try {
+        const baseUrl = window.location.origin;
+        await fetch(`${baseUrl}/api/pwa-logs`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                type,
+                message,
+                timestamp: new Date().toISOString(),
+                deviceInfo: {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    url: window.location.href,
+                    environment: baseUrl.includes('vercel.app') ? 'production' : 'development'
+                }
+            })
+        });
+    } catch (error) {
+        console.error('Failed to send log to server:', error);
+    }
+};
+
+// Update the existing showLog function
+const showLog = (message, type = 'info') => {
+    const logDiv = document.getElementById('pwa-logs') || document.createElement('div');
+    logDiv.id = 'pwa-logs';
+    logDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px;
+        font-size: 12px;
+        max-height: 150px;
+        overflow-y: auto;
+        width: 100%;
+        z-index: 10000;
+    `;
+    const log = document.createElement('div');
+    log.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+    logDiv.appendChild(log);
+    if (!document.getElementById('pwa-logs')) {
+        document.body.appendChild(logDiv);
+    }
+    
+    // Send to both console and server
+    console.log(message);
+    sendLogToServer(type, message);
 };

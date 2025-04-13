@@ -1,10 +1,10 @@
 {
-  "short_name": "FFV",
-  "name": "Fresh Farm Vegetables",
+  "short_name": "Farm Fresh",
+  "name": "Farm Fresh Vegetables",
   "icons": [
     {
       "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "64x64",
       "type": "image/x-icon"
     },
     {
@@ -20,9 +20,14 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#22c55e",
+  "theme_color": "#000000",
   "background_color": "#ffffff",
-  "orientation": "portrait"
+  "prefer_related_applications": false,
+  "description": "Fresh vegetables delivered to your doorstep",
+  "orientation": "any",
+  "categories": ["food", "shopping"]
 }

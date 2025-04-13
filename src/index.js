@@ -4,20 +4,7 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
-
-// Register service worker first
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            const registration = await navigator.serviceWorker.register('/service-worker.js', {
-                scope: '/'
-            });
-            console.log('ServiceWorker registration successful:', registration);
-        } catch (error) {
-            console.error('ServiceWorker registration failed:', error);
-        }
-    });
-}
+import * as serviceWorker from './serviceWorker';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -29,3 +16,8 @@ root.render(
 );
 
 reportWebVitals();
+
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://cra.link/PWA
+serviceWorker.register();

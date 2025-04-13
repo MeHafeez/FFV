@@ -8,23 +8,9 @@ import SocialMediaLinks from "./components/SocialMediaLinks";
 import NavigationLinks from "./components/NavigationLinks";
 import AboutUs from "./components/about/About";
 import ContactUs from "./components/contact/contact";
-import { initializePWAPrompt } from './utils/pwaInstall';
+import PWAPrompt from './components/PWAPrompt';
 
 function App() {
-    useEffect(() => {
-        // Wait for the window to load completely
-        window.addEventListener('load', () => {
-            // Small delay to ensure everything is ready
-            setTimeout(() => {
-                initializePWAPrompt();
-            }, 1000);
-        });
-
-        // Cleanup
-        return () => {
-            window.removeEventListener('load', initializePWAPrompt);
-        };
-    }, []);
 
     return (
         <div className="h-full bg-black relative">
@@ -43,6 +29,7 @@ function App() {
             <div className="fixed right-4 top-1/2 transform -translate-y-1/2">
                 <SocialMediaLinks />
             </div>
+            <PWAPrompt />
         </div>
     );
 }

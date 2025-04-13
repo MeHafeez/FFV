@@ -1,6 +1,6 @@
 {
-  "short_name": "Farm Fresh",
-  "name": "Farm Fresh Vegetables",
+  "short_name": "FFV",
+  "name": "Fresh Farm Vegetables",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,14 +20,8 @@
       "purpose": "any maskable"
     }
   ],
-  "id": "/",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff",
-  "prefer_related_applications": false,
-  "description": "Fresh vegetables delivered to your doorstep",
-  "orientation": "any",
-  "categories": ["food", "shopping"]
+  "background_color": "#ffffff"
 }

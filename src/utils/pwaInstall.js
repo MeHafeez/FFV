@@ -1,13 +1,30 @@
 let deferredPrompt;
 
 export const initializePWAPrompt = () => {
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            showInstallPrompt();
-        }
+    // Debug log to check if initialization is called
+    console.log('PWA Prompt initialization started');
+
+    // Check if the browser supports PWA installation
+    if ('serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window) {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('Install prompt captured');
+            
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                console.log('Mobile device detected, showing prompt');
+                showInstallPrompt();
+            } else {
+                console.log('Not a mobile device, prompt not shown');
+            }
+        });
+    } else {
+        console.log('PWA installation not supported in this browser');
+    }
+
+    // Add installed event listener
+    window.addEventListener('appinstalled', (evt) => {
+        console.log('PWA installed successfully');
     });
 };
 
@@ -80,47 +97,58 @@ const showInstallPrompt = () => {
 
     const installButton = alertDiv.querySelector('.pwa-install-btn');
     installButton.addEventListener('click', async () => {
-        // Capture device information
-        const deviceInfo = {
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            vendor: navigator.vendor,
-            language: navigator.language,
-            screenResolution: `${window.screen.width}x${window.screen.height}`,
-            deviceMemory: navigator.deviceMemory || 'unknown',
-            connection: navigator.connection ? {
-                type: navigator.connection.effectiveType,
-                downlink: navigator.connection.downlink,
-                rtt: navigator.connection.rtt
-            } : 'unknown',
-            devicePixelRatio: window.devicePixelRatio,
-            timestamp: new Date().toISOString(),
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            browserName: navigator.userAgent.match(/(?:firefox|chrome|safari)\/(\d+)/i)?.[0] || 'unknown',
-            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-        };
-
-        // Send data to Vercel API endpoint
         try {
-            await fetch('/api/log-device-info', {
+            // Capture device information
+            const deviceInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                vendor: navigator.vendor,
+                language: navigator.language,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+                deviceMemory: navigator.deviceMemory || 'unknown',
+                connection: navigator.connection ? {
+                    type: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt
+                } : 'unknown',
+                devicePixelRatio: window.devicePixelRatio,
+                timestamp: new Date().toISOString(),
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                browserName: navigator.userAgent.match(/(?:firefox|chrome|safari)\/(\d+)/i)?.[0] || 'unknown',
+                isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+            };
+
+            // Log before sending data
+            console.log('Attempting to send device info');
+
+            // Send data to Vercel API endpoint
+            const response = await fetch('/api/log-device-info', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(deviceInfo)
             });
-        } catch (error) {
-            console.error('Error sending device info:', error);
-        }
 
-        // Continue with PWA installation
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                alertDiv.remove();
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            deferredPrompt = null;
+
+            // Try PWA installation
+            if (deferredPrompt) {
+                console.log('Triggering install prompt');
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('Installation outcome:', outcome);
+                if (outcome === 'accepted') {
+                    alertDiv.remove();
+                }
+                deferredPrompt = null;
+            } else {
+                console.error('Install prompt not available');
+            }
+        } catch (error) {
+            console.error('Installation process error:', error);
         }
     });
 };

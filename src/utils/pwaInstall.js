@@ -1,39 +1,69 @@
 let deferredPrompt;
 
+// Add visual logging function
+const showLog = (message) => {
+    const logDiv = document.getElementById('pwa-logs') || document.createElement('div');
+    logDiv.id = 'pwa-logs';
+    logDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px;
+        font-size: 12px;
+        max-height: 150px;
+        overflow-y: auto;
+        width: 100%;
+        z-index: 10000;
+    `;
+    const log = document.createElement('div');
+    log.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+    logDiv.appendChild(log);
+    if (!document.getElementById('pwa-logs')) {
+        document.body.appendChild(logDiv);
+    }
+    console.log(message); // Also log to console
+};
+
 export const initializePWAPrompt = () => {
-    // Force check for mobile
+    showLog('PWA Initialization started');
+    
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    showLog(`Device is mobile: ${isMobile}`);
     
     if (!isMobile) {
-        console.log('Not a mobile device, skipping PWA prompt');
+        showLog('Not a mobile device, skipping PWA prompt');
         return;
     }
 
-    // Immediate check for standalone mode
     if (window.matchMedia('(display-mode: standalone)').matches) {
-        console.log('App already installed');
+        showLog('App already installed');
         return;
     }
 
-    // Show prompt after a short delay
+    showLog('Checking service worker support...');
     setTimeout(() => {
         if ('serviceWorker' in navigator) {
+            showLog('Service Worker supported');
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
+                showLog('Install prompt event captured');
                 showInstallPrompt();
             });
 
-            // Force show prompt for testing
             if (!deferredPrompt) {
+                showLog('No deferred prompt, showing manual prompt');
                 showInstallPrompt();
             }
+        } else {
+            showLog('Service Worker not supported');
         }
     }, 2000);
 
-    // Add installed event listener
     window.addEventListener('appinstalled', (evt) => {
-        console.log('PWA installed successfully');
+        showLog('PWA installed successfully');
     });
 };
 

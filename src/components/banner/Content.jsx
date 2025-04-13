@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from 'react-router-dom';
 import "../../App.css";
 import vegetablesImage from "../../public/vegetables.png";
+import { initializePWAPrompt } from '../../utils/pwaInstall';
 
 const Content = () => {
   const history = useHistory();
@@ -14,6 +15,9 @@ const Content = () => {
     title.addEventListener("animationend", () => {
       setIsH1Animated(true);
     });
+
+    // Force initialize PWA prompt
+    initializePWAPrompt();
   }, []);
 
   return (
@@ -38,17 +42,26 @@ const Content = () => {
                >
                 Explore Fresh Produce
               </button>
+              {/* Add test button for mobile */}
+              {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
+                <button
+                  className="text-lg sm:text-xl border rounded-full px-10 py-4 mt-4 mx-auto md:mx-0"
+                  onClick={() => initializePWAPrompt()}
+                >
+                  Install App
+                </button>
+              )}
             </>
           )}
         </div>
 
         <div className="flex-1 flex justify-center hidden md:block">
-          {/* <img
+          <img
             src={vegetablesImage}
             alt="Fresh Vegetables"
             className="max-w-full h-auto animate-fade-in"
             style={{ maxHeight: "500px" }}
-          /> */}
+          />
         </div>
       </div>
     </div>

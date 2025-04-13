@@ -86,13 +86,13 @@ const Header = () => {
           <Link to="/" className="p-2 border-b hover:text-gray-400">
             Home
           </Link>
-          <Link to="#" className="p-2 border-b hover:text-gray-400">
+          <Link to="about-us" className="p-2 border-b hover:text-gray-400">
             About Us
           </Link>
           <Link to="/shop" className="p-2 border-b hover:text-gray-400">
             Shop
           </Link>
-          <Link to="#" className="p-2 hover:text-gray-400">
+          <Link to="contact-us" className="p-2 hover:text-gray-400">
             Contact Us
           </Link>
         </div>

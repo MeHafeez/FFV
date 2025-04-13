@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
 import "./App.css";
 import LandingPage from "./pages/home/HomePage";
@@ -7,8 +8,12 @@ import SocialMediaLinks from "./components/SocialMediaLinks";
 import NavigationLinks from "./components/NavigationLinks";
 import AboutUs from "./components/about/About";
 import ContactUs from "./components/contact/contact";
+import { initializePWAPrompt } from './utils/pwaInstall';
 
 function App() {
+    useEffect(() => {
+        initializePWAPrompt();
+    }, []);
   return (
     <div className="h-full bg-black relative">
       <Header />

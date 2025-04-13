@@ -59,15 +59,6 @@ const Content = () => {
               >
                 Explore Fresh Produce
               </button>
-              {/* Add test button for mobile */}
-              {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
-                <button
-                  className="text-lg sm:text-xl border rounded-full px-10 py-4 mt-4 mx-auto md:mx-0"
-                  onClick={() => initializePWAPrompt()}
-                >
-                  Install App
-                </button>
-              )}
             </>
           )}
         </div>

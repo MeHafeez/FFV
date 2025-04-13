@@ -11,22 +11,41 @@ export default async function handler(req, res) {
   try {
     const logData = req.body;
     
-    // Log to Vercel console
+    // Enhanced logging with more details
     console.log('PWA Installation Log:', {
       timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      host: req.headers.host,
+      userAgent: req.headers['user-agent'],
       ...logData
     });
+
+    // Store logs in Vercel
+    const storedLog = {
+      timestamp: new Date().toISOString(),
+      data: logData,
+      headers: req.headers,
+      environment: process.env.NODE_ENV
+    };
+
+    console.log('Stored Log:', JSON.stringify(storedLog, null, 2));
 
     return res.status(200).json({ 
       success: true,
       message: 'Log recorded successfully',
-      data: logData 
+      data: storedLog
     });
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Detailed Error:', {
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    
     return res.status(500).json({ 
       success: false,
-      message: error.message 
+      message: error.message,
+      timestamp: new Date().toISOString()
     });
   }
 }

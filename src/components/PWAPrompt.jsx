@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Snackbar, Alert } from '@mui/material';
 import AddToHomeScreenIcon from '@mui/icons-material/AddToHomeScreen';
-import { logInstallationDetails } from '../utils/pwaInstall';  // Fixed import path
+import { logInstallationDetails, initializePWAPrompt } from '../utils/pwaInstall';  // Added initializePWAPrompt
 
 const PWAPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -12,31 +12,25 @@ const PWAPrompt = () => {
   useEffect(() => {
     const checkDevice = () => {
       const isMobileOrTabletDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const isIOSDevice = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isIOSDevice = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      
       setIsMobileOrTablet(isMobileOrTabletDevice);
       setIsIOS(isIOSDevice);
       
-      // Always show prompt for iOS devices
+      // Force show prompt for iOS
       if (isIOSDevice) {
         setShowPrompt(true);
-        // Log iOS device detection
-        logInstallationDetails('ios_device_detected');
       }
     };
 
     checkDevice();
+    initializePWAPrompt(setShowPrompt, setDeferredPrompt);
 
-    const handleBeforeInstallPrompt = (e) => {
-      setDeferredPrompt(e);
-      setShowPrompt(true);
+    // Clean up event listeners
+    return () => {
+      window.removeEventListener('beforeinstallprompt', () => {});
     };
-
-    // Only add beforeinstallprompt listener for non-iOS devices
-    if (!isIOS) {
-      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    }
-  }, [isIOS]);
+  }, []);
 
   const handleInstallClick = async () => {
     if (isIOS) {

@@ -1,22 +1,27 @@
 {
-  "routes": [
-    {
-      "src": "/service-worker.js",
-      "headers": {
-        "cache-control": "no-cache, no-store, must-revalidate",
-        "Service-Worker-Allowed": "/"
+    "headers": [
+      {
+        "source": "/(.*)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/service-worker.js",
+        "headers": [
+          {
+            "key": "cache-control",
+            "value": "no-cache, no-store, must-revalidate"
+          },
+          {
+            "key": "Service-Worker-Allowed",
+            "value": "/"
+          }
+        ]
       }
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, must-revalidate"
-        }
-      ]
-    }
-  ]
-}
+    ]
+  }
+  

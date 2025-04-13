@@ -12,13 +12,15 @@ const PWAPrompt = () => {
   useEffect(() => {
     const checkDevice = () => {
       const isMobileOrTabletDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const isIOSDevice = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      const isIOSDevice = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
       setIsMobileOrTablet(isMobileOrTabletDevice);
       setIsIOS(isIOSDevice);
       
-      // Show prompt for iOS devices if using Safari
-      if (isIOSDevice && /Safari/.test(navigator.userAgent) && !(/Chrome/.test(navigator.userAgent))) {
+      // Always show prompt for iOS devices
+      if (isIOSDevice) {
         setShowPrompt(true);
+        // Log iOS device detection
+        logInstallationDetails('ios_device_detected');
       }
     };
 
@@ -68,6 +70,7 @@ const PWAPrompt = () => {
       <Snackbar 
         open={showPrompt} 
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{ mb: 2 }}
       >
         <Alert 
           severity="info" 
@@ -77,6 +80,9 @@ const PWAPrompt = () => {
             color: '#000',
             '& .MuiAlert-icon': {
               color: '#22c55e'
+            },
+            '& .MuiAlert-message': {
+              width: '100%'
             }
           }}
           icon={<AddToHomeScreenIcon sx={{ color: '#22c55e' }} />}
@@ -91,15 +97,16 @@ const PWAPrompt = () => {
                 backgroundColor: '#22c55e',
                 '&:hover': {
                   backgroundColor: '#16a34a'
-                }
+                },
+                whiteSpace: 'nowrap'
               }}
             >
-              {isIOS ? 'Install Instructions' : 'Add to home screen'}
+              {isIOS ? 'Show Instructions' : 'Add to home screen'}
             </Button>
           }
         >
           {isIOS 
-            ? 'Tap the share button and select "Add to Home Screen" to install FFV'
+            ? '1. Tap the Share button below ↓\n2. Scroll and select "Add to Home Screen"'
             : 'Install FFV for a better experience'
           }
         </Alert>

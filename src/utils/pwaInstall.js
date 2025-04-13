@@ -19,9 +19,13 @@ export const logInstallationDetails = async (outcome) => {
       outcome: outcome
     };
 
-    console.log('Sending installation log:', deviceInfo);
+    console.log('Attempting to send log:', deviceInfo);
 
-    const response = await fetch('/api/log-pwa-install', {
+    const apiUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3000/api/log-pwa-install'
+      : 'https://freshveggies.vercel.app/api/log-pwa-install';
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,7 +37,7 @@ export const logInstallationDetails = async (outcome) => {
     console.log('Log response:', result);
 
   } catch (error) {
-    console.error('Error logging PWA installation:', error);
+    console.error('Logging error:', error);
   }
 };
 
